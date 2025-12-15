@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Dashboard JUNERA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+:root{
+  --primary:#244E8A; --soft:#E7ECF8; --bg:#F3F4F6; --card:#fff;
+  --ok:#16A34A; --warn:#D97706; --late:#DC2626;
+}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg)}
+.container{max-width:1100px;margin:auto;padding:24px}
+h1{color:var(--primary)}
+.card{background:var(--card);border-radius:14px;padding:16px;margin-top:20px}
+.card h2{margin:0 0 10px;color:var(--primary)}
+.btn{border:none;border-radius:20px;padding:6px 14px;cursor:pointer}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-danger{background:var(--late);color:#fff}
+.btn-ghost{background:#fff;border:1px solid #ddd}
+.table{width:100%;border-collapse:collapse;margin-top:10px}
+.table th,.table td{padding:8px;border-bottom:1px solid #eee;font-size:0.9rem}
+.table th{background:var(--soft);text-align:left}
+.badge{padding:3px 10px;border-radius:20px;font-size:0.75rem}
+.badge.ok{background:#DCFCE7;color:var(--ok)}
+.badge.warn{background:#FEF3C7;color:var(--warn)}
+.badge.late{background:#FEE2E2;color:var(--late)}
+input{padding:4px;width:100%}
+.actions{display:flex;gap:6px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Dashboard JUNERA</h1>
+
+<div class="card">
+<h2>Obligations</h2>
+<button class="btn btn-primary" onclick="addObligationRow()">+ Nouvelle obligation</button>
+<table class="table" id="obligations-table">
+<thead><tr><th>Titre</th><th>Description</th><th>Statut</th><th>Actions</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>Actions</h2>
+<button class="btn btn-primary" onclick="addActionRow()">+ Nouvelle action</button>
+<table class="table" id="actions-table">
+<thead><tr><th>Action</th><th>Priorité</th><th>Statut</th><th>Actions</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+function badge(st){if(!st) return '<span class="badge warn">À faire</span>';
+const s=st.toLowerCase();if(s.includes('retard'))return '<span class="badge late">En retard</span>';
+if(s.includes('jour')||s.includes('ok'))return '<span class="badge ok">À jour</span>';
+return '<span class="badge warn">'+st+'</span>'}
+
+async function load(){
+ const obs=await getObligations(); const acs=await getActions();
+ const obBody=document.querySelector('#obligations-table tbody'); obBody.innerHTML='';
+ obs.forEach(o=>{const tr=document.createElement('tr');tr.innerHTML=`
+ <td><input value="${o.titre}"/></td>
+ <td><input value="${o.description||''}"/></td>
+ <td>${badge(o.statut)}</td>
+ <td class="actions">
+ <button class="btn btn-primary" onclick="saveOb(${o.id},this)">💾</button>
+ <button class="btn btn-danger" onclick="delOb(${o.id})">🗑</button>
+ </td>`;obBody.appendChild(tr)})
+
+ const acBody=document.querySelector('#actions-table tbody'); acBody.innerHTML='';
+ acs.forEach(a=>{const tr=document.createElement('tr');tr.innerHTML=`
+ <td><input value="${a.action}"/></td>
+ <td><input value="${a.priorite||''}"/></td>
+ <td>${badge(a.statut)}</td>
+ <td class="actions">
+ <button class="btn btn-primary" onclick="saveAc(${a.id},this)">💾</button>
+ <button class="btn btn-danger" onclick="delAc(${a.id})">🗑</button>
+ </td>`;acBody.appendChild(tr)})
+}
+
+async function saveOb(id,btn){const tr=btn.closest('tr');
+await updateObligation(id,{titre:tr.children[0].children[0].value,description:tr.children[1].children[0].value});load()}
+async function delOb(id){if(confirm('Supprimer ?')){await deleteObligation(id);load()}}
+async function saveAc(id,btn){const tr=btn.closest('tr');
+await updateAction(id,{action:tr.children[0].children[0].value,priorite:tr.children[1].children[0].value});load()}
+async function delAc(id){if(confirm('Supprimer ?')){await deleteAction(id);load()}}
+
+async function addObligationRow(){await createObligation({titre:'Nouvelle obligation'});load()}
+async function addActionRow(){await createAction({action:'Nouvelle action'});load()}
+
+document.addEventListener('DOMContentLoaded',load)
+</script>
+</body>
+</html>

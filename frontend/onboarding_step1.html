@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Onboarding Step 1 | JUNERA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { font-family: system-ui; margin:0; background:#F3F4F6; }
+form { max-width:600px; margin:40px auto; background:#fff; padding:20px; border-radius:20px; display:grid; gap:15px; }
+input { padding:8px; border:1px solid #E2E6EE; border-radius:8px; width:100%; }
+button { padding:10px 20px; border:none; border-radius:999px; background:#244E8A; color:#fff; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<form id="step1-form">
+  <h2>Informations personnelles</h2>
+  <input name="nom" placeholder="Nom" required>
+  <input name="prenom" placeholder="Prénom" required>
+  <input type="email" name="email" placeholder="E-mail" required>
+  <input name="raison_sociale" placeholder="Entreprise / Raison sociale" required>
+  <button type="submit">Suivant</button>
+</form>
+
+<script>
+// Récupérer plan et sites depuis l'URL
+const urlParams = new URLSearchParams(window.location.search);
+const plan = urlParams.get('plan');
+const sites = urlParams.get('sites');
+
+document.getElementById('step1-form').addEventListener('submit', e=>{
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  data.plan = plan;
+  data.sites = sites;
+  const query = new URLSearchParams(data).toString();
+  window.location.href = `onboarding_step2.html?${query}`;
+});
+</script>
+
+</body>
+</html>

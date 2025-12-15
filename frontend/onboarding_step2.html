@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Onboarding Step 2 | JUNERA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { font-family: system-ui; margin:0; background:#F3F4F6; }
+form { max-width:800px; margin:40px auto; background:#fff; padding:20px; border-radius:20px; display:grid; gap:15px; }
+input { padding:8px; border:1px solid #E2E6EE; border-radius:8px; width:100%; }
+button { padding:10px 20px; border:none; border-radius:999px; background:#244E8A; color:#fff; cursor:pointer; }
+h3 { margin-top:20px; }
+</style>
+</head>
+<body>
+
+<form id="step2-form">
+  <h2>Configuration des sites</h2>
+  <div id="sites-container"></div>
+  <button type="submit">Terminer l'onboarding</button>
+</form>
+
+<script>
+// Récupérer données depuis URL
+const params = new URLSearchParams(window.location.search);
+const plan = params.get('plan');
+const sites = parseInt(params.get('sites'));
+const nom = params.get('nom');
+const prenom = params.get('prenom');
+const email = params.get('email');
+const raison_sociale = params.get('raison_sociale');
+
+const container = document.getElementById('sites-container');
+
+// Générer un formulaire pour chaque site
+for(let i=1;i<=sites;i++){
+  const div = document.createElement('div');
+  div.innerHTML = `
+    <h3>Site ${i}</h3>
+    <input name="site_${i}_nom" placeholder="Nom du site ${i}" required>
+    <input name="site_${i}_adresse" placeholder="Adresse du site ${i}" required>
+  `;
+  container.appendChild(div);
+}
+
+document.getElementById('step2-form').addEventListener('submit', e=>{
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  // Ajouter infos utilisateur + plan
+  data.nom = nom;
+  data.prenom = prenom;
+  data.email = email;
+  data.raison_sociale = raison_sociale;
+  data.plan = plan;
+  data.sites = sites;
+  console.log("Données finales onboarding :", data);
+  alert("Onboarding terminé ! Vérifie la console pour les données.");
+});
+</script>
+
+</body>
+</html>

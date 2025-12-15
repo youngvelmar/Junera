@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tarifs & inscription | JUNERA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --primary: #244E8A;
+    --bg-card: #fff;
+    --border-subtle: #E2E6EE;
+    --radius-lg: 20px;
+  }
+  body { font-family: system-ui; margin:0; background:#F3F4F6; }
+  .pricing-row { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; max-width:960px; margin:40px auto; }
+  .pricing-card { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius-lg); padding:20px; display:flex; flex-direction:column; gap:10px; }
+  .btn { padding:8px 16px; border:none; border-radius:999px; cursor:pointer; background:var(--primary); color:#fff; }
+</style>
+</head>
+<body>
+
+<div class="pricing-row">
+  <div class="pricing-card" data-plan="solo" data-sites="1">
+    <div class="pricing-name">Plan Solo</div>
+    <div class="pricing-price">29 € / mois</div>
+    <div class="pricing-caption">1 site inclus</div>
+    <button class="btn btn-select-plan">Choisir</button>
+  </div>
+
+  <div class="pricing-card" data-plan="tpe" data-sites="3">
+    <div class="pricing-name">Plan TPE</div>
+    <div class="pricing-price">59 € / mois</div>
+    <div class="pricing-caption">Jusqu'à 3 sites</div>
+    <button class="btn btn-select-plan">Choisir</button>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.btn-select-plan').forEach(btn=>{
+  btn.addEventListener('click', e=>{
+    const card = e.target.closest('.pricing-card');
+    const plan = card.dataset.plan;
+    const sites = card.dataset.sites;
+    window.location.href = `onboarding_step1.html?plan=${plan}&sites=${sites}`;
+  });
+});
+</script>
+
+</body>
+</html>

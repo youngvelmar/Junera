@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>JUNERA – Veille réglementaire QSE & RSE automatisée</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --primary: #244E8A;
+      --primary-soft: #E7ECF8;
+      --accent: #D9A441;
+      --bg-body: #F3F4F6;
+      --bg-card: #FFFFFF;
+      --border-subtle: #E2E6EE;
+      --text-main: #111827;
+      --text-muted: #6B7280;
+      --radius-lg: 20px;
+      --radius-pill: 999px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg-body);
+      color: var(--text-main);
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border-subtle);
+      background: #FFFFFF;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .logo {
+      font-size: 1.1rem;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      border-radius: var(--radius-pill);
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-ghost {
+      border-color: var(--border-subtle);
+      color: var(--primary);
+      background: #FFFFFF;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    main {
+      flex: 1;
+    }
+
+    .section {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 40px 16px;
+    }
+
+    /* HERO */
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 40px;
+      padding-top: 40px;
+      padding-bottom: 40px;
+      align-items: start;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 0.75rem;
+      margin-bottom: 10px;
+    }
+
+    .hero h1 {
+      font-size: 2.1rem;
+      margin: 0 0 12px;
+      color: var(--primary);
+    }
+
+    .hero p {
+      margin: 0 0 18px;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      max-width: 540px;
+      line-height: 1.5;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .hero-note {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Hero right card */
+    .hero-card {
+      background: #FFFFFF;
+      border-radius: 24px;
+      border: 1px solid var(--border-subtle);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .hero-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.85rem;
+    }
+
+    .hero-card-title {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: var(--radius-pill);
+      background: #DCFCE7;
+      font-size: 0.75rem;
+      color: #16A34A;
+    }
+
+    .metrics {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .metric {
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #F7F9FB;
+      padding: 9px 10px;
+      min-width: 0;
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .metric-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .metric-change {
+      font-size: 0.75rem;
+      margin-top: 2px;
+    }
+
+    .metric-change.pos { color: #16A34A; }
+    .metric-change.neg { color: #DC2626; }
+
+    .hero-chart {
+      border-radius: 16px;
+      background: var(--primary-soft);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .hero-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 70px;
+    }
+
+    .bar {
+      width: 12px;
+      border-radius: 999px 999px 4px 4px;
+      background: #6D7FB6;
+    }
+
+    .bar.highlight {
+      background: var(--accent);
+    }
+
+    .hero-chart-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .hero-chart-text span:last-child {
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    /* Section title */
+    .section-title {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .section-title h2 {
+      margin: 0 0 6px;
+      font-size: 1.6rem;
+      color: var(--primary);
+    }
+
+    .section-title p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Features */
+    .features-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feature-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .feature-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .feature-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Small business section */
+    .smallbiz-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 40px;
+      align-items: start;
+    }
+
+    .smallbiz-subtitle {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .smallbiz-text {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      max-width: 540px;
+    }
+
+    .bullet-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bullet {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .bullet-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--primary);
+      margin-top: 6px;
+    }
+
+    .smallbiz-card {
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .smallbiz-card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .smallbiz-illustration {
+      border-radius: 12px;
+      border: 1px dashed var(--border-subtle);
+      background: #F7F9FB;
+      padding: 16px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Pricing preview */
+    .pricing-preview {
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    .pricing-cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .pricing-card {
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      padding: 20px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pricing-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .pricing-price {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .pricing-caption {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .pricing-features {
+      font-size: 0.85rem;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pricing-features span::before {
+      content: "• ";
+      color: var(--primary);
+    }
+
+    /* FAQ */
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px 40px;
+      margin-top: 24px;
+    }
+
+    .faq-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .faq-q {
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .faq-a {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* CTA final */
+    .cta-final {
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .cta-text {
+      font-size: 0.95rem;
+    }
+
+    .cta-text strong {
+      color: var(--primary);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      background: #FFFFFF;
+      margin-top: 32px;
+    }
+
+    .footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .footer-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-logo {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--primary);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-bottom {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+      .features-row {
+        grid-template-columns: 1fr;
+      }
+      .smallbiz-row {
+        grid-template-columns: 1fr;
+      }
+      .pricing-cards {
+        grid-template-columns: 1fr;
+      }
+      .faq-grid {
+        grid-template-columns: 1fr;
+      }
+      .cta-final {
+        align-items: flex-start;
+      }
+      .header-inner {
+        flex-wrap: wrap;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="header-inner">
+        <div class="logo">JUNERA</div>
+        <nav class="nav-links">
+          <a href="#fonctionnalites">Fonctionnalités</a>
+          <a href="#petites-structures">Pour les petites structures</a>
+          <a href="pricing.html">Tarifs</a>
+        </nav>
+        <div class="header-actions">
+          <a href="login.html" class="btn btn-ghost">Se connecter</a>
+          <a href="pricing.html" class="btn btn-primary">Créer un compte</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="section hero">
+        <div>
+          <div class="badge">Veille réglementaire QSE & RSE automatisée</div>
+          <h1>Suivez vos obligations QSE sans tableurs ni veille manuelle.</h1>
+          <p>
+            JUNERA rassemble la réglementation, filtre ce qui s’applique à votre activité
+            et vous fournit un plan d’actions clair : obligations, échéances et preuves documentaires.
+          </p>
+          <div class="hero-actions">
+            <a href="pricing.html" class="btn btn-primary">Essayer JUNERA</a>
+            <a href="#fonctionnalites" class="btn btn-ghost">Voir comment ça fonctionne</a>
+          </div>
+          <div class="hero-note">
+            Aucune carte bancaire requise au départ · Données hébergées en Europe
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="hero-card-header">
+            <div class="hero-card-title">Exemple – TPE logistique</div>
+            <div class="hero-badge">+18 points de conformité ce mois-ci</div>
+          </div>
+
+          <div class="metrics">
+            <div class="metric">
+              <div class="metric-label">Obligations à jour</div>
+              <div class="metric-value">24</div>
+              <div class="metric-change pos">+3 ce mois-ci</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Actions en retard</div>
+              <div class="metric-value">2</div>
+              <div class="metric-change neg">–1 ce mois-ci</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Documents centralisés</div>
+              <div class="metric-value">78</div>
+              <div class="metric-change pos">+9 ce mois-ci</div>
+            </div>
+          </div>
+
+          <div class="hero-chart">
+            <div class="hero-bars">
+              <div class="bar" style="height:20px;"></div>
+              <div class="bar" style="height:35px;"></div>
+              <div class="bar highlight" style="height:50px;"></div>
+              <div class="bar" style="height:45px;"></div>
+              <div class="bar" style="height:60px;"></div>
+            </div>
+            <div class="hero-chart-text">
+              <span>Évolution du score de conformité sur 6 mois</span>
+              <span>+34 pts après déploiement de JUNERA</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FONCTIONNALITÉS -->
+      <section class="section" id="fonctionnalites">
+        <div class="section-title">
+          <h2>Ce que JUNERA automatise pour vous</h2>
+          <p>
+            Gagnez du temps et sécurisez votre conformité grâce à une veille continue
+            et des plans d’actions prêts à l’emploi.
+          </p>
+        </div>
+
+        <div class="features-row">
+          <div class="feature-card">
+            <div class="feature-icon">📘</div>
+            <div class="feature-title">Veille réglementaire mensuelle</div>
+            <div class="feature-text">
+              Analyse des nouveaux textes officiels : JO, décrets, arrêtés ICPE, Code du travail,
+              ATEX, ADR, INRS et autres sources publiques pertinentes.
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <div class="feature-title">Applicabilité automatique</div>
+            <div class="feature-text">
+              Filtrage de ce qui s’applique vraiment à votre entreprise selon votre secteur, vos sites,
+              vos installations et vos volumes.
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">✅</div>
+            <div class="feature-title">Plan d’actions clair</div>
+            <div class="feature-text">
+              Chaque obligation est traduite en actions concrètes avec priorités, échéances
+              et preuves attendues pour vos audits et inspections.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PETITES STRUCTURES -->
+      <section class="section" id="petites-structures">
+        <div class="section-title">
+          <h2>Pensé pour les petites structures</h2>
+          <p>
+            Que vous soyez indépendant, TPE ou responsable QSE unique, JUNERA simplifie
+            votre conformité sans ajouter de complexité.
+          </p>
+        </div>
+
+        <div class="smallbiz-row">
+          <div>
+            <div class="smallbiz-subtitle">Une vue claire, action par action</div>
+            <p class="smallbiz-text">
+              Grâce à une interface épurée et une automatisation maîtrisée, vous savez toujours
+              quoi faire, pourquoi et quand.
+            </p>
+
+            <div class="bullet-list">
+              <div class="bullet">
+                <div class="bullet-dot"></div>
+                <div>Vue synthétique des obligations prioritaires.</div>
+              </div>
+              <div class="bullet">
+                <div class="bullet-dot"></div>
+                <div>Actions générées et mises à jour chaque mois.</div>
+              </div>
+              <div class="bullet">
+                <div class="bullet-dot"></div>
+                <div>Aucun document à produire dans l’outil, uniquement ce qui compte pour vos contrôles.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="smallbiz-card">
+            <div class="smallbiz-card-title">Exemple de tableau de bord</div>
+            <div class="smallbiz-illustration">
+              <strong>TPE – Plateforme logistique</strong><br /><br />
+              • 24 obligations à jour<br />
+              • 2 actions en retard<br />
+              • 3 actions prioritaires à réaliser ce mois-ci<br />
+              • 78 documents preuves centralisés<br /><br />
+              JUNERA met à jour ces informations à chaque nouvelle veille réglementaire.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TARIFS (APERÇU) -->
+      <section class="section">
+        <div class="section-title">
+          <h2>Tarifs simples et transparents</h2>
+          <p>
+            Deux plans adaptés aux petites structures. Vous pouvez commencer sur un périmètre limité
+            et élargir par la suite.
+          </p>
+        </div>
+
+        <div class="pricing-cards">
+          <div class="pricing-card">
+            <div class="pricing-name">Plan Solo</div>
+            <div class="pricing-price">29 € / mois</div>
+            <div class="pricing-caption">ou 290 €/an (2 mois offerts)</div>
+            <div class="pricing-features">
+              <span>1 site inclus</span>
+              <span>Veille réglementaire QSE mensuelle</span>
+              <span>Applicabilité par secteur et site</span>
+              <span>Plan d’actions mensuel</span>
+            </div>
+            <a href="pricing.html" class="btn btn-primary" style="margin-top:10px;">Choisir ce plan</a>
+          </div>
+
+          <div class="pricing-card">
+            <div class="pricing-name">Plan TPE</div>
+            <div class="pricing-price">59 € / mois</div>
+            <div class="pricing-caption">ou 590 €/an (2 mois offerts)</div>
+            <div class="pricing-features">
+              <span>Jusqu’à 3 sites</span>
+              <span>Vue globale multi-sites</span>
+              <span>Veille QSE + premiers indicateurs RSE</span>
+              <span>Support e-mail</span>
+            </div>
+            <a href="pricing.html" class="btn btn-ghost" style="margin-top:10px;">Voir les détails des tarifs</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section class="section">
+        <div class="section-title">
+          <h2>Questions fréquentes</h2>
+          <p>Tout ce que vous devez savoir avant de créer votre compte.</p>
+        </div>
+
+        <div class="faq-grid">
+          <div class="faq-item">
+            <div class="faq-q">Puis-je résilier mon abonnement quand je veux ?</div>
+            <div class="faq-a">
+              Oui. Vous pouvez résilier à tout moment depuis votre espace. Votre accès reste actif
+              jusqu’à la fin de la période déjà payée.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Dois-je installer un logiciel ?</div>
+            <div class="faq-a">
+              Non. JUNERA fonctionne 100 % en ligne, depuis un navigateur, sans installation locale.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Quelles sont les sources réglementaires suivies ?</div>
+            <div class="faq-a">
+              Journal Officiel, Légifrance, ICPE, Code du travail, décrets, arrêtés, ATEX, ADR,
+              INRS et autres sources publiques pertinentes.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Puis-je ajouter plusieurs sites ?</div>
+            <div class="faq-a">
+              Oui, le plan TPE permet d’ajouter jusqu’à 3 sites. Des options supplémentaires
+              pourront être proposées selon vos besoins.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Est-ce adapté aux auto-entrepreneurs ?</div>
+            <div class="faq-a">
+              Oui. Le plan Solo est conçu pour les indépendants et petites structures ayant peu de temps
+              à consacrer à la conformité.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">Mes données sont-elles sécurisées ?</div>
+            <div class="faq-a">
+              Oui. Les données sont hébergées en Europe, avec chiffrement en transit
+              et aucun partage à des tiers à des fins commerciales.
+            </div>
+          </div>
+        </div>
+
+        <div class="cta-final">
+          <div class="cta-text">
+            <strong>Prêt à simplifier votre conformité QSE&nbsp;?</strong><br />
+            Créez un compte, complétez votre configuration en quelques minutes et obtenez votre première
+            veille personnalisée.
+          </div>
+          <a href="pricing.html" class="btn btn-primary">Créer mon compte</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-top">
+          <div>
+            <div class="footer-logo">JUNERA</div>
+            <div>Votre veille réglementaire QSE, simplement.</div>
+          </div>
+          <div class="footer-links">
+            <a href="mentions-legales.html" class="footer-link">Mentions légales</a>
+            <a href="cgu.html" class="footer-link">CGU</a>
+            <a href="cgv.html" class="footer-link">CGV</a>
+            <a href="politique-confidentialite.html" class="footer-link">Politique de confidentialité</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <div>© 2025 JUNERA – Tous droits réservés.</div>
+          <div>Contact : contact@junera.com</div>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

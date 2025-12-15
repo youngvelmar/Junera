@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mentions légales | JUNERA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --primary: #244E8A;
+      --bg-body: #F3F4F6;
+      --bg-card: #FFFFFF;
+      --border-subtle: #E2E6EE;
+      --text-main: #111827;
+      --text-muted: #6B7280;
+      --radius-lg: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg-body);
+      color: var(--text-main);
+    }
+
+    a { color: var(--primary); text-decoration: none; }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .logo {
+      font-size: 1rem;
+      letter-spacing: 0.16em;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+
+    main {
+      flex: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 32px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 12px;
+      color: var(--primary);
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      margin: 18px 0 6px;
+      color: var(--text-main);
+    }
+
+    p, li {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    ul { padding-left: 18px; }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      padding: 18px 18px 20px;
+    }
+
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      background: #FFFFFF;
+    }
+
+    .footer-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 18px 16px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="header-inner">
+        <div class="logo">JUNERA</div>
+        <a href="index.html">Retour au site</a>
+      </div>
+    </header>
+
+    <main>
+      <h1>Mentions légales</h1>
+      <div class="card">
+        <h2>Éditeur du site</h2>
+        <p>
+          Dénomination sociale : JUNERA (exemple)<br />
+          Forme juridique : SASU au capital de 1 000 €<br />
+          Siège social : [Adresse à compléter]<br />
+          RCS : [Ville] – [Numéro RCS à compléter]<br />
+          N° TVA intracommunautaire : [à compléter]<br />
+          Responsable de la publication : [Nom, prénom]<br />
+          E-mail de contact : contact@junera.com
+        </p>
+
+        <h2>Hébergement</h2>
+        <p>
+          Hébergeur : [Nom de l’hébergeur à compléter]<br />
+          Adresse : [Adresse de l’hébergeur]<br />
+          Site web : [URL de l’hébergeur]
+        </p>
+
+        <h2>Propriété intellectuelle</h2>
+        <p>
+          L’ensemble des éléments figurant sur le site (textes, graphismes, logo, mises en page, etc.) est protégé
+          par les législations en vigueur sur la propriété intellectuelle. Toute reproduction ou représentation,
+          totale ou partielle, sans autorisation écrite préalable est interdite.
+        </p>
+
+        <h2>Responsabilité</h2>
+        <p>
+          Les informations fournies sur le site ont un caractère indicatif. Malgré le soin apporté à leur mise à jour,
+          l’éditeur ne peut garantir l’exactitude, la complétude ou l’actualité des contenus. L’utilisation du site se
+          fait sous la seule responsabilité de l’utilisateur.
+        </p>
+
+        <h2>Liens hypertextes</h2>
+        <p>
+          Le site peut contenir des liens vers d’autres sites. L’éditeur n’exerce aucun contrôle sur le contenu de ces
+          sites tiers et ne pourra être tenu responsable de leur contenu ou de tout dommage résultant de leur utilisation.
+        </p>
+
+        <h2>Contact</h2>
+        <p>
+          Pour toute question relative aux présentes mentions légales, vous pouvez écrire à : contact@junera.com.
+        </p>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <div>© 2025 JUNERA – Tous droits réservés.</div>
+        <div class="footer-links">
+          <a href="cgu.html">CGU</a>
+          <a href="cgv.html">CGV</a>
+          <a href="politique-confidentialite.html">Politique de confidentialité</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
