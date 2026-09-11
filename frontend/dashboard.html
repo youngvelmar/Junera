@@ -2,97 +2,51 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8" />
-<title>Dashboard JUNERA</title>
+<title>Tableau de bord | JUNERA</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
-:root{
-  --primary:#244E8A; --soft:#E7ECF8; --bg:#F3F4F6; --card:#fff;
-  --ok:#16A34A; --warn:#D97706; --late:#DC2626;
-}
-body{margin:0;font-family:system-ui,sans-serif;background:var(--bg)}
-.container{max-width:1100px;margin:auto;padding:24px}
-h1{color:var(--primary)}
-.card{background:var(--card);border-radius:14px;padding:16px;margin-top:20px}
-.card h2{margin:0 0 10px;color:var(--primary)}
-.btn{border:none;border-radius:20px;padding:6px 14px;cursor:pointer}
-.btn-primary{background:var(--primary);color:#fff}
-.btn-danger{background:var(--late);color:#fff}
-.btn-ghost{background:#fff;border:1px solid #ddd}
-.table{width:100%;border-collapse:collapse;margin-top:10px}
-.table th,.table td{padding:8px;border-bottom:1px solid #eee;font-size:0.9rem}
-.table th{background:var(--soft);text-align:left}
-.badge{padding:3px 10px;border-radius:20px;font-size:0.75rem}
-.badge.ok{background:#DCFCE7;color:var(--ok)}
-.badge.warn{background:#FEF3C7;color:var(--warn)}
-.badge.late{background:#FEE2E2;color:var(--late)}
-input{padding:4px;width:100%}
-.actions{display:flex;gap:6px}
+:root{--primary:#244E8A;--soft:#E7ECF8;--bg:#F3F4F6;--card:#fff;--ok:#15803D;--warn:#B45309;--late:#B91C1C;--muted:#6B7280;--border:#E5E7EB}*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:#111827}.container{max-width:1180px;margin:auto;padding:24px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}.brand{font-weight:800;letter-spacing:.12em;color:var(--primary)}.user{font-size:.85rem;color:var(--muted)}.btn{border:0;border-radius:999px;padding:8px 14px;cursor:pointer}.btn-primary{background:var(--primary);color:#fff}.btn-ghost{background:#fff;border:1px solid var(--border)}h1{color:var(--primary);margin:0 0 4px}.subtitle{color:var(--muted);margin:0}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0}.stat,.card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 25px rgba(15,23,42,.04)}.stat{padding:18px}.stat strong{display:block;font-size:1.8rem;color:var(--primary)}.stat span{font-size:.82rem;color:var(--muted)}.card{padding:18px;margin-top:18px}.card h2{margin:0 0 12px;color:var(--primary);font-size:1.05rem}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:720px}.table th,.table td{padding:11px 9px;border-bottom:1px solid #eee;font-size:.86rem;text-align:left}.table th{background:var(--soft);color:#334155}.badge{padding:4px 9px;border-radius:999px;font-size:.73rem;white-space:nowrap}.badge.ok{background:#DCFCE7;color:var(--ok)}.badge.warn{background:#FEF3C7;color:var(--warn)}.badge.late{background:#FEE2E2;color:var(--late)}.empty,.error{padding:22px;text-align:center;color:var(--muted)}.error{color:var(--late)}select{border:1px solid var(--border);border-radius:8px;padding:6px;background:white}@media(max-width:700px){.stats{grid-template-columns:1fr}.container{padding:16px}.topbar{align-items:flex-start;flex-direction:column}}
 </style>
 </head>
 <body>
 <div class="container">
-<h1>Dashboard JUNERA</h1>
-
-<div class="card">
-<h2>Obligations</h2>
-<button class="btn btn-primary" onclick="addObligationRow()">+ Nouvelle obligation</button>
-<table class="table" id="obligations-table">
-<thead><tr><th>Titre</th><th>Description</th><th>Statut</th><th>Actions</th></tr></thead>
-<tbody></tbody>
-</table>
+  <div class="topbar"><div class="brand">JUNERA</div><div><span id="user" class="user"></span> <button class="btn btn-ghost" onclick="logoutUser()">Déconnexion</button></div></div>
+  <h1>Tableau de bord conformité</h1><p class="subtitle">Vos obligations réglementaires et votre plan d’actions.</p>
+  <div class="stats"><div class="stat"><strong id="stat-obligations">—</strong><span>Obligations applicables</span></div><div class="stat"><strong id="stat-actions">—</strong><span>Actions ouvertes</span></div><div class="stat"><strong id="stat-late">—</strong><span>Échéances dépassées</span></div></div>
+  <div id="message"></div>
+  <div class="card"><h2>Obligations</h2><div class="table-wrap"><table class="table"><thead><tr><th>Obligation</th><th>Sévérité</th><th>Échéance</th><th>Statut</th></tr></thead><tbody id="obligations-body"></tbody></table></div></div>
+  <div class="card"><h2>Plan d’actions</h2><div class="table-wrap"><table class="table"><thead><tr><th>Action</th><th>Priorité</th><th>Échéance</th><th>Statut</th></tr></thead><tbody id="actions-body"></tbody></table></div></div>
 </div>
-
-<div class="card">
-<h2>Actions</h2>
-<button class="btn btn-primary" onclick="addActionRow()">+ Nouvelle action</button>
-<table class="table" id="actions-table">
-<thead><tr><th>Action</th><th>Priorité</th><th>Statut</th><th>Actions</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</div>
-
 <script src="js/api.js"></script>
 <script>
-function badge(st){if(!st) return '<span class="badge warn">À faire</span>';
-const s=st.toLowerCase();if(s.includes('retard'))return '<span class="badge late">En retard</span>';
-if(s.includes('jour')||s.includes('ok'))return '<span class="badge ok">À jour</span>';
-return '<span class="badge warn">'+st+'</span>'}
+const token = localStorage.getItem('junera_token');
+if (!token) window.location.replace('login.html');
+const storedUser = JSON.parse(localStorage.getItem('junera_user') || '{}');
+document.getElementById('user').textContent = storedUser.email || '';
 
-async function load(){
- const obs=await getObligations(); const acs=await getActions();
- const obBody=document.querySelector('#obligations-table tbody'); obBody.innerHTML='';
- obs.forEach(o=>{const tr=document.createElement('tr');tr.innerHTML=`
- <td><input value="${o.titre}"/></td>
- <td><input value="${o.description||''}"/></td>
- <td>${badge(o.statut)}</td>
- <td class="actions">
- <button class="btn btn-primary" onclick="saveOb(${o.id},this)">💾</button>
- <button class="btn btn-danger" onclick="delOb(${o.id})">🗑</button>
- </td>`;obBody.appendChild(tr)})
+function escapeHtml(value=''){return String(value).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function dateLabel(value){if(!value)return '—';return new Intl.DateTimeFormat('fr-FR').format(new Date(value))}
+function isLate(value,status){return value && new Date(value)<new Date() && !['completed','done','à jour'].includes(String(status||'').toLowerCase())}
+function badge(value){const text=value||'À traiter';const s=String(text).toLowerCase();const cls=s.includes('complete')||s.includes('jour')||s==='done'?'ok':s.includes('retard')?'late':'warn';return `<span class="badge ${cls}">${escapeHtml(text)}</span>`}
 
- const acBody=document.querySelector('#actions-table tbody'); acBody.innerHTML='';
- acs.forEach(a=>{const tr=document.createElement('tr');tr.innerHTML=`
- <td><input value="${a.action}"/></td>
- <td><input value="${a.priorite||''}"/></td>
- <td>${badge(a.statut)}</td>
- <td class="actions">
- <button class="btn btn-primary" onclick="saveAc(${a.id},this)">💾</button>
- <button class="btn btn-danger" onclick="delAc(${a.id})">🗑</button>
- </td>`;acBody.appendChild(tr)})
+async function changeObligationStatus(id,value){try{await updateObligation(id,{statut:value});await loadDashboard()}catch(e){showError(e.message)}}
+async function changeActionStatus(id,value){try{await updateAction(id,{statut:value});await loadDashboard()}catch(e){showError(e.message)}}
+function showError(message){document.getElementById('message').innerHTML=`<div class="error">${escapeHtml(message)}</div>`}
+
+async function loadDashboard(){
+ try{
+  const [obligations,actions]=await Promise.all([getObligations(),getActions()]);
+  document.getElementById('message').innerHTML='';
+  document.getElementById('stat-obligations').textContent=obligations.length;
+  document.getElementById('stat-actions').textContent=actions.filter(a=>!['completed','done'].includes(String(a.statut||'').toLowerCase())).length;
+  document.getElementById('stat-late').textContent=[...obligations,...actions].filter(i=>isLate(i.due_date,i.statut)).length;
+  const ob=document.getElementById('obligations-body');
+  ob.innerHTML=obligations.length?obligations.map(o=>`<tr><td><strong>${escapeHtml(o.titre)}</strong><br><small>${escapeHtml(o.description||'')}</small></td><td>${escapeHtml(o.severite||'—')}</td><td>${dateLabel(o.due_date)}</td><td><select onchange="changeObligationStatus(${Number(o.id)},this.value)"><option value="applicable" ${o.statut==='applicable'?'selected':''}>Applicable</option><option value="review" ${o.statut==='review'?'selected':''}>À revoir</option><option value="completed" ${o.statut==='completed'?'selected':''}>À jour</option></select></td></tr>`).join(''):`<tr><td colspan="4" class="empty">Aucune obligation affectée à votre organisation.</td></tr>`;
+  const ac=document.getElementById('actions-body');
+  ac.innerHTML=actions.length?actions.map(a=>`<tr><td><strong>${escapeHtml(a.action)}</strong><br><small>${escapeHtml(a.description||'')}</small></td><td>${escapeHtml(a.priorite||'—')}</td><td>${dateLabel(a.due_date)}</td><td><select onchange="changeActionStatus(${Number(a.id)},this.value)"><option value="open" ${a.statut==='open'?'selected':''}>À faire</option><option value="in_progress" ${a.statut==='in_progress'?'selected':''}>En cours</option><option value="completed" ${a.statut==='completed'?'selected':''}>Terminée</option></select></td></tr>`).join(''):`<tr><td colspan="4" class="empty">Aucune action ouverte.</td></tr>`;
+ }catch(error){if(!localStorage.getItem('junera_token'))return window.location.replace('login.html');showError(error.message)}
 }
-
-async function saveOb(id,btn){const tr=btn.closest('tr');
-await updateObligation(id,{titre:tr.children[0].children[0].value,description:tr.children[1].children[0].value});load()}
-async function delOb(id){if(confirm('Supprimer ?')){await deleteObligation(id);load()}}
-async function saveAc(id,btn){const tr=btn.closest('tr');
-await updateAction(id,{action:tr.children[0].children[0].value,priorite:tr.children[1].children[0].value});load()}
-async function delAc(id){if(confirm('Supprimer ?')){await deleteAction(id);load()}}
-
-async function addObligationRow(){await createObligation({titre:'Nouvelle obligation'});load()}
-async function addActionRow(){await createAction({action:'Nouvelle action'});load()}
-
-document.addEventListener('DOMContentLoaded',load)
+document.addEventListener('DOMContentLoaded',loadDashboard);
 </script>
 </body>
 </html>
