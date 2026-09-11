@@ -6,6 +6,7 @@ import { checkDatabase } from "./db.js";
 import authRoutes from "./routes/auth.js";
 import usersRoutes from "./routes/users.js";
 import obligationsRoutes from "./routes/obligations.js";
+import actionsRoutes from "./routes/actions.js";
 
 const app = express();
 const PORT = Number(process.env.PORT || 4000);
@@ -47,6 +48,7 @@ app.get("/api/health", async (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/obligations", obligationsRoutes);
+app.use("/api/actions", actionsRoutes);
 
 app.use((req, res) => res.status(404).json({ message: `Route introuvable: ${req.method} ${req.path}` }));
 
