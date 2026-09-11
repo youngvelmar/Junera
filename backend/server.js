@@ -1,67 +1,60 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
-import pkg from "pg";
 
-// Routes
+import { checkDatabase } from "./db.js";
+import authRoutes from "./routes/auth.js";
+import usersRoutes from "./routes/users.js";
 import obligationsRoutes from "./routes/obligations.js";
 
-const { Pool } = pkg;
 const app = express();
+const PORT = Number(process.env.PORT || 4000);
 
-/* =========================
-   MIDDLEWARES
-========================= */
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000,http://127.0.0.1:5500")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.disable("x-powered-by");
 app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"]
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("Origin not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 }));
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 
-/* =========================
-   DATABASE (PostgreSQL)
-========================= */
-if (!process.env.DATABASE_URL) {
-  console.error("❌ DATABASE_URL is missing");
-  process.exit(1);
-}
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === "production"
-    ? { rejectUnauthorized: false }
-    : false
-});
-
-// Vérification DB au démarrage
-pool.query("SELECT 1")
-  .then(() => console.log("✅ PostgreSQL connected"))
-  .catch(err => {
-    console.error("❌ PostgreSQL connection error", err);
-    process.exit(1);
-  });
-
-/* =========================
-   ROUTES
-========================= */
-app.get("/", async (req, res) => {
+app.get("/", async (_req, res) => {
   try {
-    const result = await pool.query("SELECT NOW()");
-    res.json({
-      status: "API JUNERA OK",
-      db_time: result.rows[0].now
-    });
-  } catch (err) {
-    res.status(500).json({ error: "DB connection error" });
+    const dbTime = await checkDatabase();
+    res.json({ status: "API JUNERA OK", database: "connected", db_time: dbTime });
+  } catch (error) {
+    console.error("HEALTHCHECK ERROR:", error.message);
+    res.status(503).json({ status: "API JUNERA DEGRADED", database: "unavailable" });
   }
 });
 
+app.get("/api/health", async (_req, res) => {
+  try {
+    const dbTime = await checkDatabase();
+    res.json({ ok: true, db_time: dbTime });
+  } catch {
+    res.status(503).json({ ok: false });
+  }
+});
+
+app.use("/api/auth", authRoutes);
+app.use("/api/users", usersRoutes);
 app.use("/api/obligations", obligationsRoutes);
 
-/* =========================
-   SERVER
-========================= */
-const PORT = process.env.PORT || 10000;
+app.use((req, res) => res.status(404).json({ message: `Route introuvable: ${req.method} ${req.path}` }));
+
+app.use((error, _req, res, _next) => {
+  console.error("UNHANDLED ERROR:", error);
+  res.status(500).json({ message: "Erreur interne du serveur" });
+});
+
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`JUNERA API listening on port ${PORT}`);
 });
