@@ -1,31 +1,56 @@
 import express from "express";
+import { pool } from "../db.js";
+import { verifyToken } from "../middleware/auth.js";
 
-export default function obligationsRoutes(pool) {
-  const router = express.Router();
+const router = express.Router();
+router.use(verifyToken);
 
-  router.get("/", async (req, res) => {
-    try {
-      const result = await pool.query("SELECT * FROM obligations ORDER BY id DESC");
-      res.json(result.rows);
-    } catch {
-      res.status(500).json({ error: "Impossible de récupérer les obligations" });
-    }
-  });
+router.get("/", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT coi.id,
+              ot.title AS titre,
+              ot.description,
+              coi.applicability_status AS statut,
+              COALESCE(coi.severity, ot.severity) AS severite,
+              coi.due_date,
+              coi.comments
+       FROM company_obligation_instance coi
+       JOIN obligation_template ot ON ot.id = coi.obligation_template_id
+       JOIN user_organization uo ON uo.organization_id = coi.organization_id
+       WHERE uo.user_id = $1
+       ORDER BY coi.due_date NULLS LAST, coi.id DESC`,
+      [req.user.id]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error("GET OBLIGATIONS ERROR:", error);
+    res.status(500).json({ message: "Impossible de récupérer les obligations" });
+  }
+});
 
-  router.post("/", async (req, res) => {
-    const { titre, description, statut } = req.body;
-    if (!titre) return res.status(400).json({ error: "Le titre est obligatoire" });
+router.patch("/:id", async (req, res) => {
+  const { statut, due_date: dueDate, comments } = req.body;
+  try {
+    const result = await pool.query(
+      `UPDATE company_obligation_instance coi
+       SET applicability_status = COALESCE($1, coi.applicability_status),
+           due_date = COALESCE($2, coi.due_date),
+           comments = COALESCE($3, coi.comments),
+           last_reviewed_at = NOW()
+       FROM user_organization uo
+       WHERE coi.id = $4
+         AND uo.organization_id = coi.organization_id
+         AND uo.user_id = $5
+       RETURNING coi.*`,
+      [statut ?? null, dueDate ?? null, comments ?? null, req.params.id, req.user.id]
+    );
+    if (!result.rows.length) return res.status(404).json({ message: "Obligation introuvable" });
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("UPDATE OBLIGATION ERROR:", error);
+    res.status(500).json({ message: "Modification impossible" });
+  }
+});
 
-    try {
-      const result = await pool.query(
-        "INSERT INTO obligations (titre, description, statut) VALUES ($1,$2,$3) RETURNING *",
-        [titre, description || "", statut || "À faire"]
-      );
-      res.status(201).json(result.rows[0]);
-    } catch {
-      res.status(500).json({ error: "Création impossible" });
-    }
-  });
-
-  return router;
-}
+export default router;
