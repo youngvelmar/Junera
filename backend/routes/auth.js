@@ -1,80 +1,95 @@
-// backend/routes/auth.js
-
 import express from "express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { pool } from "../db.js"; // Assure-toi que pool est exporté depuis db.js
+import crypto from "node:crypto";
+import { promisify } from "node:util";
+import { pool } from "../db.js";
+import { createToken, verifyToken } from "../middleware/auth.js";
 
 const router = express.Router();
+const scrypt = promisify(crypto.scrypt);
 
-// ---------- REGISTER ----------
+async function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const derivedKey = await scrypt(password, salt, 64);
+  return `scrypt:${salt}:${Buffer.from(derivedKey).toString("hex")}`;
+}
+
+async function verifyPassword(password, storedHash) {
+  if (!storedHash?.startsWith("scrypt:")) return false;
+  const [, salt, keyHex] = storedHash.split(":");
+  const derivedKey = await scrypt(password, salt, 64);
+  const expected = Buffer.from(keyHex, "hex");
+  const actual = Buffer.from(derivedKey);
+  return expected.length === actual.length && crypto.timingSafeEqual(expected, actual);
+}
+
 router.post("/register", async (req, res) => {
+  const email = String(req.body.email || "").trim().toLowerCase();
+  const password = String(req.body.password || "");
+
+  if (!email || password.length < 8) {
+    return res.status(400).json({ message: "E-mail valide et mot de passe de 8 caractères minimum requis" });
+  }
+
   try {
-    const { name, email, password } = req.body;
+    const existing = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
+    if (existing.rows.length) return res.status(409).json({ message: "E-mail déjà utilisé" });
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "Champs manquants" });
-    }
-
-    // Vérifier si l'utilisateur existe déjà
-    const existingUser = await pool.query("SELECT * FROM users WHERE email=$1", [email]);
-    if (existingUser.rows.length > 0) {
-      return res.status(400).json({ message: "Email déjà utilisé" });
-    }
-
-    // Hash du mot de passe
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Insertion dans la base
+    const passwordHash = await hashPassword(password);
     const result = await pool.query(
-      "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email",
-      [name, email, hashedPassword]
+      `INSERT INTO users (email, password_hash, role)
+       VALUES ($1, $2, 'client')
+       RETURNING id, email, role, created_at`,
+      [email, passwordHash]
     );
 
-    res.status(201).json({ message: "Utilisateur créé", user: result.rows[0] });
-  } catch (err) {
-    console.error("REGISTER ERROR:", err);
+    const user = result.rows[0];
+    const token = createToken({ id: user.id, email: user.email, role: user.role });
+    res.status(201).json({ message: "Compte créé", token, user });
+  } catch (error) {
+    console.error("REGISTER ERROR:", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
 
-// ---------- LOGIN ----------
 router.post("/login", async (req, res) => {
+  const email = String(req.body.email || "").trim().toLowerCase();
+  const password = String(req.body.password || "");
+
+  if (!email || !password) return res.status(400).json({ message: "E-mail et mot de passe requis" });
+
   try {
-    const { email, password } = req.body;
-
-    // Vérifier l'existence de l'utilisateur
-    const userResult = await pool.query("SELECT * FROM users WHERE email=$1", [email]);
-    if (userResult.rows.length === 0) {
-      return res.status(401).json({ message: "Utilisateur introuvable" });
-    }
-
-    const user = userResult.rows[0];
-
-    // Vérifier le mot de passe
-    const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) {
-      return res.status(401).json({ message: "Mot de passe incorrect" });
-    }
-
-    // Générer le token
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      process.env.JWT_SECRET || "junera_secret_temp",
-      { expiresIn: "1d" }
+    const result = await pool.query(
+      "SELECT id, email, password_hash, role FROM users WHERE email = $1",
+      [email]
     );
+    if (!result.rows.length) return res.status(401).json({ message: "Identifiants incorrects" });
 
+    const user = result.rows[0];
+    const valid = await verifyPassword(password, user.password_hash);
+    if (!valid) return res.status(401).json({ message: "Identifiants incorrects" });
+
+    const token = createToken({ id: user.id, email: user.email, role: user.role });
     res.json({
       message: "Connexion réussie",
       token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      },
+      user: { id: user.id, email: user.email, role: user.role },
     });
-  } catch (err) {
-    console.error("LOGIN ERROR:", err);
+  } catch (error) {
+    console.error("LOGIN ERROR:", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+router.get("/me", verifyToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, email, role, created_at FROM users WHERE id = $1",
+      [req.user.id]
+    );
+    if (!result.rows.length) return res.status(404).json({ message: "Utilisateur introuvable" });
+    res.json({ user: result.rows[0] });
+  } catch (error) {
+    console.error("ME ERROR:", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
