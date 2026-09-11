@@ -5,33 +5,10 @@
   <title>Connexion | JUNERA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root {
-      --primary: #244E8A;
-      --bg-body: #F3F4F6;
-      --bg-card: #FFFFFF;
-      --border-subtle: #E2E6EE;
-      --text-main: #111827;
-      --text-muted: #6B7280;
-      --radius-lg: 18px;
-      --radius-pill: 999px;
-    }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg-body); color:var(--text-main);}
-    a { color:inherit; text-decoration:none;}
-    .page { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; gap:16px;}
-    .card { width:100%; max-width:420px; background:var(--bg-card); border-radius:var(--radius-lg); border:1px solid var(--border-subtle); padding:24px 22px 24px; box-shadow:0 20px 40px rgba(15,23,42,0.06);}
-    .logo { font-size:1rem; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--primary); margin-bottom:12px;}
-    h1 { margin:0 0 6px; font-size:1.4rem; color:var(--primary);}
-    p { margin:0 0 18px; font-size:0.9rem; color:var(--text-muted);}
-    .field { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; font-size:0.9rem;}
-    .field-label { font-size:0.8rem; color:var(--text-muted);}
-    .input { border-radius:8px; border:1px solid var(--border-subtle); padding:7px 9px; font-size:0.9rem; font-family:inherit; background:#fff; width:100%;}
-    .actions { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:10px;}
-    .btn { border-radius:var(--radius-pill); padding:8px 16px; font-size:0.85rem; border:1px solid transparent; background:transparent; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; white-space:nowrap;}
-    .btn-primary { background:var(--primary); color:#fff;}
-    .link { font-size:0.8rem; color:var(--primary);}
-    .footer-text { margin-top:16px; font-size:0.8rem; color:var(--text-muted);}
-    .footer-links { font-size:0.78rem; color:var(--text-muted); display:flex; flex-wrap:wrap; gap:10px; justify-content:center;}
+    :root{--primary:#244E8A;--bg:#F3F4F6;--card:#fff;--border:#E2E6EE;--text:#111827;--muted:#6B7280;--danger:#B91C1C}
+    *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}a{color:inherit;text-decoration:none}
+    .page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:16px}.card{width:100%;max-width:420px;background:var(--card);border-radius:18px;border:1px solid var(--border);padding:26px 22px;box-shadow:0 20px 40px rgba(15,23,42,.06)}
+    .logo{font-size:1rem;font-weight:800;letter-spacing:.16em;color:var(--primary);margin-bottom:12px}h1{margin:0 0 6px;font-size:1.5rem;color:var(--primary)}p{margin:0 0 20px;font-size:.9rem;color:var(--muted)}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}.field-label{font-size:.8rem;color:var(--muted)}.input{border-radius:9px;border:1px solid var(--border);padding:10px 11px;font:inherit;width:100%}.actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}.btn{border-radius:999px;padding:10px 18px;font-size:.85rem;border:0;cursor:pointer}.btn-primary{background:var(--primary);color:#fff}.btn:disabled{opacity:.6;cursor:wait}.link{font-size:.8rem;color:var(--primary)}.footer-text{margin-top:18px;font-size:.8rem;color:var(--muted)}.footer-links{font-size:.78rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.error{display:none;background:#FEE2E2;color:var(--danger);padding:9px 10px;border-radius:8px;font-size:.82rem;margin-bottom:14px}
   </style>
 </head>
 <body>
@@ -39,61 +16,41 @@
     <div class="card">
       <div class="logo">JUNERA</div>
       <h1>Connexion</h1>
-      <p>Connectez-vous pour accéder à votre veille réglementaire personnalisée.</p>
-
+      <p>Accédez à votre espace de conformité réglementaire.</p>
+      <div id="error" class="error" role="alert"></div>
       <form id="login-form">
-        <div class="field">
-          <label class="field-label">E-mail professionnel</label>
-          <input class="input" type="email" name="email" placeholder="vous@entreprise.fr" required />
-        </div>
-
-        <div class="field">
-          <label class="field-label">Mot de passe</label>
-          <input class="input" type="password" name="password" placeholder="Votre mot de passe" required />
-        </div>
-
-        <div class="actions">
-          <a href="#" class="link">Mot de passe oublié ?</a>
-          <button type="submit" class="btn btn-primary">Se connecter</button>
-        </div>
+        <div class="field"><label class="field-label" for="email">E-mail professionnel</label><input id="email" class="input" type="email" name="email" autocomplete="email" required /></div>
+        <div class="field"><label class="field-label" for="password">Mot de passe</label><input id="password" class="input" type="password" name="password" autocomplete="current-password" required /></div>
+        <div class="actions"><a href="#" class="link">Mot de passe oublié ?</a><button id="submit" type="submit" class="btn btn-primary">Se connecter</button></div>
       </form>
-
-      <div class="footer-text">
-        Pas encore de compte ? <a href="pricing.html" class="link">Créer un compte</a><br />
-        <a href="index.html" class="link">Retour au site JUNERA</a>
-      </div>
+      <div class="footer-text">Pas encore de compte ? <a href="pricing.html" class="link">Créer un compte</a><br /><a href="index.html" class="link">Retour au site JUNERA</a></div>
     </div>
-
-    <div class="footer-links">
-      <a href="mentions-legales.html">Mentions légales</a>
-      <a href="cgu.html">CGU</a>
-      <a href="cgv.html">CGV</a>
-      <a href="politique-confidentialite.html">Politique de confidentialité</a>
-    </div>
+    <div class="footer-links"><a href="mentions-legales.html">Mentions légales</a><a href="cgu.html">CGU</a><a href="cgv.html">CGV</a><a href="politique-confidentialite.html">Confidentialité</a></div>
   </div>
+  <script src="js/api.js"></script>
+  <script>
+    const form = document.getElementById('login-form');
+    const errorBox = document.getElementById('error');
+    const submitButton = document.getElementById('submit');
 
-  <script type="module">
-    import { loginUser } from './js/api.js';
-    
-    const form = document.getElementById('loginForm');
-    
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-    
-      const data = {
-        email: form.email.value,
-        password: form.password.value
-      };
-    
-      const res = await loginUser(data);
-    
-      if (res.user) {
-        alert("Connexion réussie !");
+    if (localStorage.getItem('junera_token')) window.location.href = 'dashboard.html';
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      errorBox.style.display = 'none';
+      submitButton.disabled = true;
+      submitButton.textContent = 'Connexion…';
+      try {
+        await loginUser({ email: form.email.value, password: form.password.value });
         window.location.href = 'dashboard.html';
-      } else {
-        alert(res.message);
+      } catch (error) {
+        errorBox.textContent = error.message;
+        errorBox.style.display = 'block';
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Se connecter';
       }
     });
-    </script>
+  </script>
 </body>
 </html>
